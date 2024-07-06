@@ -1,6 +1,6 @@
 import React from "react";
 
-function QuestionItem({ onDeleteQuestion, text }) {
+function QuestionItem({ onUpdateQuestion, onDeleteQuestion, text }) {
   const { id, prompt, answers, correctIndex } = question;
 
   const options = answers.map((answer, index) => (
@@ -9,9 +9,25 @@ function QuestionItem({ onDeleteQuestion, text }) {
     </option>
   ));
 
-  function handleDelete() {
+  function handleDeleteQuestion() {
     fetch(`http://localhost:4000/questions/${id}`,{
       method: "DELETE",
+    })
+    .then((response) => {
+      console.log(response)
+      if(!response.ok) {
+        throw new Error("Network response was not ok")
+      }
+      return response.json()
+    })
+      .catch((error) => {
+        console.error("Error deleting item:", error)
+      })
+    }
+
+  function handleUpdateQuestion() {
+    fetch(`http://localhost:4000/questions/${id}`,{
+      method: "PATCH",
     })
     .then((response) => {
       console.log(response)
@@ -20,11 +36,13 @@ function QuestionItem({ onDeleteQuestion, text }) {
       }
       return response.json()
     })
-    .then(() => {
-      console.error("Error:", error)
+    .then((updatedQuestion) => {
+      onUpdateQuestion(updatedQuestion)
+    })
+    .catch((error) => {
+      console.error("Error updating question:", error)
     })
   }
-
 
   return (
     <li>
@@ -34,7 +52,7 @@ function QuestionItem({ onDeleteQuestion, text }) {
         Correct Answer:
         <select defaultValue={correctIndex}>{options}</select>
       </label>
-      <button onClick={handleDelete}>Delete Question</button>
+      <button onClick={handleDeleteQuestion}>Delete Question</button>
     </li>
   );
 }
