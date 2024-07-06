@@ -9,25 +9,33 @@ function App() {
 
   useEffect(() => {
     fetch("http://localhost:4000/questions")
-      .then(response => response.json())
-      .then(data => {
-        setQuestions(data);
+      .then(response => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok")
+        }
+        return response.json()
       })
-      .catch(error => console.error("Error fetching questions:", error));
-  }, []);
+      .then(data => {
+        setQuestions(data)
+      })
+      .catch(error => {
+        console.error("Error fetching questions:", error)
+      })
+  }, [])
 
   function handleAddQuestion(newQuestion) {
-    setQuestions([...questions, newQuestion]);
+    setQuestions([...questions, newQuestion])
+    setPage("List") 
+    // navigates to list page after adding a question
   }
 
   function handleDeleteQuestion(id) {
-    setQuestions(questions.filter(question => question.id !== id));
+    setQuestions(questions.filter(question => question.id !== id))
   }
 
   function handleUpdateQuestion(updatedQuestion) {
     const updatedQuestions = questions.map(question =>
-      question.id === updatedQuestion.id ? updatedQuestion : question
-    );
+      question.id === updatedQuestion.id ? updatedQuestion : question)
     setQuestions(updatedQuestions);
   }
 
@@ -35,7 +43,7 @@ function App() {
     <main>
     <AdminNavBar onChangePage={setPage} />
       {page === "Form" ? (
-      <QuestionForm onAddQuestion = {handleAddQuestion} />
+      <QuestionForm onAddQuestion = {handleAddQuestion} onChangePage={setPage}/>
        ) : (
       <QuestionList questions={questions} onUpdateQuestion = {handleUpdateQuestion} onDeleteQuestion = {handleDeleteQuestion} />
       )}

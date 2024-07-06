@@ -1,7 +1,7 @@
-import React, {useState, useEffect} from "react";
-import QuestionForm from "./QuestionForm"
+import React from "react";
 import QuestionItem from "./QuestionItem"
 
+// render the list of questions
 function QuestionList({questions, onUpdateQuestion, onDeleteQuestion}) {
   return (
     <section>

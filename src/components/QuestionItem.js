@@ -1,38 +1,47 @@
 import React from "react";
 
-function QuestionItem({ onUpdateQuestion, onDeleteQuestion, text }) {
+function QuestionItem({ question, onUpdateQuestion, onDeleteQuestion }) {
   const { id, prompt, answers, correctIndex } = question;
 
+  // map thru the answers to create options for the correct answer in dropdown
   const options = answers.map((answer, index) => (
     <option key={index} value={index}>
       {answer}
     </option>
   ));
 
-  function handleDeleteQuestion() {
+  function handleDeleteClick() {
     fetch(`http://localhost:4000/questions/${id}`,{
       method: "DELETE",
     })
     .then((response) => {
-      console.log(response)
       if(!response.ok) {
         throw new Error("Network response was not ok")
       }
-      return response.json()
+      onDeleteQuestion(id)
     })
       .catch((error) => {
         console.error("Error deleting item:", error)
       })
     }
 
-  function handleUpdateQuestion() {
+  function handleUpdateChange(event) {
+    const updatedQuestion = {
+      ...question, 
+      correctIndex: parseInt(event.target.value),
+    }
+
+    // PATCH requestion to update the correct answer on the server
     fetch(`http://localhost:4000/questions/${id}`,{
       method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ correctIndex: updatedQuestion}),
     })
     .then((response) => {
-      console.log(response)
       if(!response.ok) {
-        throw new Error("Error deleting question")
+        throw new Error("Network response was not ok")
       }
       return response.json()
     })
@@ -50,9 +59,13 @@ function QuestionItem({ onUpdateQuestion, onDeleteQuestion, text }) {
       <h5>Prompt: {prompt}</h5>
       <label>
         Correct Answer:
-        <select defaultValue={correctIndex}>{options}</select>
+        <select 
+        defaultValue={correctIndex}
+        onChange = {handleUpdateChange}>
+          {options}
+          </select>
       </label>
-      <button onClick={handleDeleteQuestion}>Delete Question</button>
+      <button onClick={handleDeleteClick}>Delete Question</button>
     </li>
   );
 }
